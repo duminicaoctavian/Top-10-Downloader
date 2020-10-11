@@ -26,7 +26,7 @@ class ParseApplications {
             var eventType = xpp.eventType
             var currentRecord = FeedEntry()
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                val tagName = xpp.name.toLowerCase(Locale.ROOT)        // TODO: we should use the safe-call operator ?
+                val tagName = xpp.name?.toLowerCase(Locale.ROOT)
                 when (eventType) {
 
                     XmlPullParser.START_TAG -> {
@@ -50,7 +50,7 @@ class ParseApplications {
 
                                 "name" -> currentRecord.name = textValue
                                 "artist" -> currentRecord.artist = textValue
-                                "releaseDate" -> currentRecord.releaseDate = textValue
+                                "releasedate" -> currentRecord.releaseDate = textValue
                                 "summary" -> currentRecord.summary = textValue
                                 "image" -> currentRecord.imageURL = textValue
                             }
