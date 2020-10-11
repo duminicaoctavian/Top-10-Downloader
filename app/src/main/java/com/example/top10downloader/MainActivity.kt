@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPostExecute(result: String) { // this is called on the main thread
                 super.onPostExecute(result)
-//                Log.d(TAG, "onPostExecute: parameter is $result")
                 val parseApplications = ParseApplications()
                 parseApplications.parse(result)
 
