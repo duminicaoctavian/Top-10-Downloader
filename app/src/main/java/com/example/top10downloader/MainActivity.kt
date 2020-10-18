@@ -1,7 +1,6 @@
 package com.example.top10downloader
 
 import android.content.Context
-import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +10,6 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import kotlinx.android.synthetic.main.activity_main.*
 import java.net.URL
-import kotlin.properties.Delegates
 
 class FeedEntry {
 
@@ -35,11 +33,10 @@ class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
 //    private val downloadData by lazy { DownloadData(this, xmlListView) }
-    private var downloadData: DownloadData? = null
+
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
     private var feedLimit = 10
 
-    private var feedCachedUrl = "INVALIDATED"
     private val STATE_URL = "feedUrl"
     private val STATE_LIMIT = "feedLimit"
 
@@ -56,18 +53,6 @@ class MainActivity : AppCompatActivity() {
 
         downloadUrl(feedUrl.format(feedLimit))
         Log.d(TAG, "onCreate: done")
-    }
-
-    private fun downloadUrl(feedUrl: String) {
-        if (feedUrl != feedCachedUrl) {
-            Log.d(TAG, "downloadUrl starting AsyncTask")
-            downloadData = DownloadData(this, xmlListView)
-            downloadData?.execute(feedUrl)
-            feedCachedUrl = feedUrl
-            Log.d(TAG, "downloadUrl done")
-        } else {
-            Log.d(TAG, "downloadUrl - URL not changed")
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -114,8 +99,8 @@ class MainActivity : AppCompatActivity() {
         outState.putInt(STATE_LIMIT, feedLimit)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        downloadData?.cancel(true)
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        downloadData?.cancel(true)
+//    }
 }
