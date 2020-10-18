@@ -1,15 +1,13 @@
 package com.example.top10downloader
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ArrayAdapter
-import android.widget.ListView
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.activity_main.*
-import java.net.URL
 
 class FeedEntry {
 
@@ -19,26 +17,27 @@ class FeedEntry {
     var summary: String = ""
     var imageURL: String = ""
 
-    override fun toString(): String {
-        return """
-            name = $name
-            artist = $artist
-            releaseDate = $releaseDate
-            imageURL = $imageURL
-        """.trimIndent()
-    }
+//    override fun toString(): String {
+//        return """
+//            name = $name
+//            artist = $artist
+//            releaseDate = $releaseDate
+//            imageURL = $imageURL
+//        """.trimIndent()
+//    }
 }
+
+private const val TAG = "MainActivity"
+private const val STATE_URL = "feedUrl"
+private const val STATE_LIMIT = "feedLimit"
 
 class MainActivity : AppCompatActivity() {
 
-    private val TAG = "MainActivity"
 //    private val downloadData by lazy { DownloadData(this, xmlListView) }
 
     private var feedUrl: String = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=%d/xml"
     private var feedLimit = 10
-
-    private val STATE_URL = "feedUrl"
-    private val STATE_LIMIT = "feedLimit"
+    private val feedViewModel: FeedViewModel by lazy { ViewModelProviders.of(this).get(FeedViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,12 +45,18 @@ class MainActivity : AppCompatActivity() {
 
         Log.d(TAG, "onCreate called")
 
+        val feedAdapter = FeedAdapter(this, R.layout.list_record, EMPTY_FEED_LIST)
+        xmlListView.adapter = feedAdapter
+
         if (savedInstanceState != null) {
             feedUrl = savedInstanceState.getString(STATE_URL)!!
             feedLimit = savedInstanceState.getInt(STATE_LIMIT)
         }
 
-        downloadUrl(feedUrl.format(feedLimit))
+
+        feedViewModel.feedEntries.observe(this, Observer { feedEntries -> feedAdapter.setFeedList(feedEntries ?: EMPTY_FEED_LIST) })
+
+        feedViewModel.downloadUrl(feedUrl.format(feedLimit))
         Log.d(TAG, "onCreate: done")
     }
 
@@ -84,12 +89,12 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "onOptionsSelected: ${item.title} setting feedLimit unchanged")
                 }
             }
-            R.id.mnuRefresh -> feedCachedUrl = "INVALIDATED"
+            R.id.mnuRefresh -> feedViewModel.invalidate()
             else ->
                 return super.onOptionsItemSelected(item)
         }
 
-        downloadUrl(feedUrl.format(feedLimit))
+        feedViewModel.downloadUrl(feedUrl.format(feedLimit))
         return true
     }
 
